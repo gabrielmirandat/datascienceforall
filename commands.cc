@@ -1,3 +1,5 @@
+## importing data in r1
+
 # import data 1
 
 dir() // lista diretorio atual
@@ -47,3 +49,10 @@ writeWorksheet(my_book,sheet="data_summary",summ)
 saveWorkbook(my_book, file ="summary.xlsx")
 removeSheet(book, sheet = "Y2010")
 saveWorkbook(book, file = "cities4.xlsx")
+
+## importing data in r2
+
+library(DBI)
+dbListTables(con)
+dbReadTablel(con, "employers")
+dbDisconnect(con)

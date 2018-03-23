@@ -1,6 +1,6 @@
 ## importing data in r1
 
-# import data 1
+# PART1
 
 dir() // lista diretorio atual
 
@@ -17,7 +17,7 @@ head(data) // primeiras seis observacoes
 // Select the hot dog with the least calories: lily
 lily <- hotdogs[which.min(hotdogs$calories), ]
 
-# import data 2
+# PART2
 
 install.packages("readr")
 library(readr)
@@ -26,7 +26,7 @@ potatoes_fragment <- read_tsv("potatoes.txt", skip = 6, n_max = 5, col_names = p
 potatoes <- fread("potatoes.csv")
 plot(tasty_potatoes$texture, tasty_potatoes$moistness)
 
-# import data 3
+# PART3
 
 library(readxl)
 excel_sheets("cities.xlsx")
@@ -40,7 +40,7 @@ pop_a <- read_excel("latitude_nonames.xlsx", sheet=1, col_names=FALSE)
 
 head(urban_pop, n=11)
 
-# import data 4
+# PART4
 library(XLConnect)
 my_book <- loadWorkbook("urbanpop.xlsx")
 class(my_book)
@@ -52,7 +52,70 @@ saveWorkbook(book, file = "cities4.xlsx")
 
 ## importing data in r2
 
+# PART1
+
 library(DBI)
 dbListTables(con)
 dbReadTablel(con, "employers")
 dbDisconnect(con)
+
+# PART2
+con <- dbConnect(RMySQL::MySQL(), dbname=.., host=.., port=.., user=.., password=..)
+subset(employers, subset=started_at > "2012-09-01", select=name)
+dbGetQuery(con, "SELECT ..")
+
+res <- dbSendQuery(con, "SELECT..")
+dbFetch(res)
+dbClearResult(res)
+
+# PART3
+read_csv("blabla.csv") // chama http
+read_tsv("blabla.txt")
+
+dest_path <- file.path("~", "local_cities.xlxs")
+download.file(url, dest_path)
+read_excel(dest_path)
+load(dest_path)
+
+library(httr)
+resp <- GET(url)
+raw_content <- content(resp, as="raw")
+
+# PART4
+install.packages("jsonlite")
+library(jsonlite)
+
+fromJSON("http//...=json")
+fromJSON("[1,2,3,4]")
+toJSON()
+
+# PART5
+
+## library(haven)
+
+SAS: read_sas()
+STATA: read_dta() (or read_stata(), which are identical)
+SPSS: read_sav() or read_por(), depending on the file type.
+
+SAS
+ontime <- read_sas("ontime.sas7bdat")
+
+STATA
+ontime <- read_stata("ontimesas7b.dat")
+ontime <- read_dta("ontimesas7b.dat")
+
+as_factor(ontime$Airline)
+as.character(as_factor(ontime$Airline))
+
+SPSS
+read_spss()
+	.por->read_por()
+	.sav->read_sav(file.path("~", "datasets", "ontime.sav"))
+
+
+
+## library(foreign)
+
+read.dta(file, convert.factors = TRUE, convert.dates = TRUE, missing.type = FALSE)
+read.spss(file, use.value.labels = TRUE, to.data.frame = FALSE)
+

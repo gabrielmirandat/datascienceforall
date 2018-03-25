@@ -14,6 +14,9 @@ str(data) // printa estrutura da var
 summary(data) // info estatistica
 head(data) // primeiras seis observacoes
 
+plot(tasty_potatoes$texture, tasty_potatoes$moistness)
+boxplot(demo$gdp)
+
 // Select the hot dog with the least calories: lily
 lily <- hotdogs[which.min(hotdogs$calories), ]
 
@@ -24,7 +27,6 @@ library(readr)
 
 potatoes_fragment <- read_tsv("potatoes.txt", skip = 6, n_max = 5, col_names = properties)
 potatoes <- fread("potatoes.csv")
-plot(tasty_potatoes$texture, tasty_potatoes$moistness)
 
 # PART3
 
@@ -118,4 +120,8 @@ read_spss()
 
 read.dta(file, convert.factors = TRUE, convert.dates = TRUE, missing.type = FALSE)
 read.spss(file, use.value.labels = TRUE, to.data.frame = FALSE)
+
+// correlação de Pearson - dependencia linear entre duas variáveis e vai de 1 a -1
+// 1 é muita dependência, 0 são independetes, -1 sem dependência nenhuma
+cor(size$height, size$width)
 

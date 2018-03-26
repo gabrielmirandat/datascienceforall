@@ -91,7 +91,7 @@ toJSON()
 
 # PART5
 
-## library(haven)
+library(haven)
 
 SAS: read_sas()
 STATA: read_dta() (or read_stata(), which are identical)
@@ -114,8 +114,23 @@ read_spss()
 
 
 
-## library(foreign)
+library(foreign)
 
 read.dta(file, convert.factors = TRUE, convert.dates = TRUE, missing.type = FALSE)
 read.spss(file, use.value.labels = TRUE, to.data.frame = FALSE)
+
+## cleaning data in R
+
+class(lunch) // get type of data
+dim(lunch) // dimension
+names(lunch) // get column names
+
+library(dplyr)
+glimpse(lunch) // like str
+
+head(lunch, n=15)
+tail(lunch, n=15)
+
+hist(lunch$perc_free_red) // histogram
+plot(lunch$year, lunch$perc_free_red) // scatter plot
 

@@ -127,6 +127,8 @@ cor(size$height, size$width)
 
 ## cleaning data in R
 
+# PART 1
+
 class(lunch) // get type of data
 dim(lunch) // dimension
 names(lunch) // get column names
@@ -139,3 +141,19 @@ tail(lunch, n=15)
 
 hist(lunch$perc_free_red) // histogram
 plot(lunch$year, lunch$perc_free_red) // scatter plot
+
+# PART 2
+
+tidyr
+gather(wide_df, my_key, my_val, -col)
+spread(long_df, my_key, my_val)
+separate(treatments, year_mo, c("year", "month"), sep="-")
+unit(treatments, year_mo, year, month, sep="-")
+
+# Gather the month columns
+census2 <- gather(census, month, amount, -YEAR)
+
+# Arrange rows by YEAR using dplyr's arrange
+census2 <- arrange(census2, YEAR)
+
+

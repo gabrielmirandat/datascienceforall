@@ -127,6 +127,8 @@ cor(size$height, size$width)
 
 ## cleaning data in R
 
+# PART 1
+
 class(lunch) // get type of data
 dim(lunch) // dimension
 names(lunch) // get column names
@@ -139,3 +141,42 @@ tail(lunch, n=15)
 
 hist(lunch$perc_free_red) // histogram
 plot(lunch$year, lunch$perc_free_red) // scatter plot
+
+
+------------
+# PART 3
+
+as.character(2016)
+as.numeric(TRUE)
+as.integer(99)
+as.factor("something")
+as.logical(0)
+
+library(lubridate)
+ymd("2015-08-25")
+ymd("2015 August 25")
+mdy("August 25, 2015")
+hms("13:33:09")
+ymd_hms(2015/08/25 13.33.09)
+
+library(stringr)
+str_trim("remove  whitespace")
+str_pad("245", width=7, side="left", pad="0")
+str_detect(friends, "Alice") // detect presence
+str_replace(friends, "Alice", "David") // replace Alice by David
+tolower
+toupper
+
+df <- data.frame(A = c(1, NA, 8, NA),
+				 B = c(3, NA, 88, 23),
+				 C = c(2, 45, 3, 1))
+is.na(df)
+any(is.na(df))				 
+sum(is.na(df))				
+
+complete.cases(df)
+df[complete.cases(df)]
+na.omit(df)
+
+
+

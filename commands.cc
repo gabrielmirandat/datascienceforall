@@ -198,3 +198,5 @@ hist(data, breaks = 29)
 weather4 <- unite(weather3, date, year, month, day, sep = "-")
 weather5 <- select(weather4, date, Events, CloudCover:WindDirDegrees)
 
+ind <- which(weather6$Mean.VisibilityMiles == -1) 
+

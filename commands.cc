@@ -189,3 +189,12 @@ sum(is.na(df))
 complete.cases(df)
 df[complete.cases(df)]
 na.omit(df)
+
+boxplot(x, horizontal = TRUE) // see outliers3
+hist(data, breaks = 29)
+
+# PART 4
+
+weather4 <- unite(weather3, date, year, month, day, sep = "-")
+weather5 <- select(weather4, date, Events, CloudCover:WindDirDegrees)
+

@@ -200,3 +200,36 @@ weather5 <- select(weather4, date, Events, CloudCover:WindDirDegrees)
 
 ind <- which(weather6$Mean.VisibilityMiles == -1) 
 
+## data manipulation in r with dplyr
+
+# PART 1
+
+library(dplyr)
+library(hflights)
+
+hflights <- tbl_df(hflights) // transform in a tibble
+glimpse(hflights)
+as.data.frame(hflights)
+
+lut <- c("A" = "carrier", "B" = "weather", "C" = "FFA", "D" = "security", "E" = "not cancelled")
+hflights$Code <- lut[hflights$CancellationCode]
+glimpse(hflights)
+
+# PART 2
+
+select //  returns a subset of the columns
+mutate // add columns from existing data
+filter //  return a subset of the rows
+arrange // reorders the rows according to single or multiple variables,
+summarize // reduces each group to a single row by calculating aggregate measures
+
+select(table, columns to maintain)
+select(hflights, ActualElapsedTime, AirTime, ArrDelay, DepDelay) // do not modify 
+select(df, 1:4, -2)
+print(select(hflights, Origin:Cancelled))
+select(hflights, Year:DayOfWeek, ArrDelay:Diverted)
+ 
+# PART 3
+# PART 4
+# PART 5
+

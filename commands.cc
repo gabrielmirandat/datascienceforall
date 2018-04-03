@@ -218,18 +218,52 @@ glimpse(hflights)
 # PART 2
 
 select //  returns a subset of the columns
-mutate // add columns from existing data
+mutate // add columns from existing data, data already contained but not displayed
 filter //  return a subset of the rows
-arrange // reorders the rows according to single or multiple variables,
+arrange // reorders the rows according to single or multiple variables, major to minor
 summarize // reduces each group to a single row by calculating aggregate measures
 
 select(table, columns to maintain)
 select(hflights, ActualElapsedTime, AirTime, ArrDelay, DepDelay) // do not modify 
 select(df, 1:4, -2)
-print(select(hflights, Origin:Cancelled))
+select(hflights, Origin:Cancelled)
 select(hflights, Year:DayOfWeek, ArrDelay:Diverted)
- 
+dplyr // helper select
+	starts_with("X"), ends_with("X"), contains("X"), matches("X"), num_range("x", 1:5), one_of(x)
+select(hflights, ends_with("Delay"))
+select(hflights, UniqueCarrier, ends_with("Num"), contains("Cancell"))
+ex2d <- select(hflights, Year:ArrTime, -3)
+
+mutate(h1, loss = ArrDelay - DepDelay)
+mutate(my_df, x = a + b, y = x + c)
+
 # PART 3
+
+filter(hflights, Cancelled == 1)
+
+x < y, TRUE if x is less than y
+x <= y, TRUE if x is less than or equal to y
+x == y, TRUE if x equals y
+x != y, TRUE if x does not equal y
+x >= y, TRUE if x is greater than or equal to y
+x > y, TRUE if x is greater than y
+x %in% c(a, b, c), TRUE if x is in the vector c(a, b, c)
+
+glimpse(hflights)
+filter(hflights, Distance >= 3000)
+filter(hflights, UniqueCarrier %in% c("JetBlue","Southwest","Delta"))
+filter(hflights, (TaxiIn + TaxiOut) > AirTime)
+filter(hflights, DepTime < 500 |  ArrTime > 2200)
+filter(hflights, DepDelay > 0 & ArrDelay < 0)
+filter(hflights, Cancelled == 1 & DepDelay > 0)
+
+c1 <- filter(hflights, Dest == "JFK")
+c2 <- mutate(c1, Date = paste(Year,Month,DayofMonth, sep="-"))
+select(c2, Date, DepTime, ArrTime, TailNum)
+
+arrange(a1, DepDelay)
+
+
 # PART 4
 # PART 5
 

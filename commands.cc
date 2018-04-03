@@ -217,11 +217,13 @@ glimpse(hflights)
 
 # PART 2
 
+"
 select //  returns a subset of the columns
 mutate // add columns from existing data, data already contained but not displayed
 filter //  return a subset of the rows
 arrange // reorders the rows according to single or multiple variables, major to minor
 summarize // reduces each group to a single row by calculating aggregate measures
+"
 
 select(table, columns to maintain)
 select(hflights, ActualElapsedTime, AirTime, ArrDelay, DepDelay) // do not modify 
@@ -261,7 +263,7 @@ c1 <- filter(hflights, Dest == "JFK")
 c2 <- mutate(c1, Date = paste(Year,Month,DayofMonth, sep="-"))
 select(c2, Date, DepTime, ArrTime, TailNum)
 
-arrange(a1, DepDelay)
+arrange(a1, DepDelay, ArrDelay)
 
 
 # PART 4

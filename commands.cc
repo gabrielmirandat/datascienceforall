@@ -233,7 +233,7 @@ select(hflights, Year:DayOfWeek, ArrDelay:Diverted)
 dplyr // helper select
 	starts_with("X"), ends_with("X"), contains("X"), matches("X"), num_range("x", 1:5), one_of(x)
 select(hflights, ends_with("Delay"))
-select(hflights, UniqueCarrier, ends_with("Num"), contains("Cancell"))
+select(hflights, UniqueCarrier, ends_with("Num"), contains("Cancel"))
 ex2d <- select(hflights, Year:ArrTime, -3)
 
 mutate(h1, loss = ArrDelay - DepDelay)
@@ -258,6 +258,8 @@ filter(hflights, (TaxiIn + TaxiOut) > AirTime)
 filter(hflights, DepTime < 500 |  ArrTime > 2200)
 filter(hflights, DepDelay > 0 & ArrDelay < 0)
 filter(hflights, Cancelled == 1 & DepDelay > 0)
+temp1 <- filter(hflights, !is.na(ArrDelay))
+temp2 <- filter(hflights, !is.na(TaxiIn) & !is.na(TaxiOut))
 
 c1 <- filter(hflights, Dest == "JFK")
 c2 <- mutate(c1, Date = paste(Year,Month,DayofMonth, sep="-"))
@@ -265,7 +267,74 @@ select(c2, Date, DepTime, ArrTime, TailNum)
 
 arrange(a1, DepDelay, ArrDelay)
 
-
 # PART 4
-# PART 5
 
+summarize(df, sum = sum(A), avg = mean(B), var = var(B))
+summarise(temp2, max_taxi_diff = max(abs(TaxiIn - TaxiOut)))
+
+summarise(aa,
+    n_flights = n(),
+    n_canc = sum(Cancelled),
+    p_canc = n_canc/n_flights * 100,
+    avg_delay = mean(ArrDelay, na.rm=TRUE))
+
+// min(x) - minimum value of vector x.
+// max(x) - maximum value of vector x.
+// mean(x) - mean value of vector x.
+// median(x) - median value of vector x.
+// quantile(x, p) - pth quantile of vector x.
+// sd(x) - standard deviation of vector x.
+// var(x) - variance of vector x.
+// IQR(x) - Inter Quartile Range (IQR) of vector x.
+// diff(range(x)) - total range of vector x.
+
+library(dplyr)
+// first(x) - The first element of vector x.
+// last(x) - The last element of vector x.
+// nth(x, n) - The nth element of vector x.
+// n() - The number of rows in the data.frame or group of observations that summarise() describes.
+// n_distinct(x) - The number of unique values in vector x
+
+
+# PART 5
+PIPE
+library(magritr)
+%>%
+
+aa %>%
+	select(X, Y, Z) %>%
+	filter(X > Y) %>%
+	mutate(Q = X + Y + Z) %>%
+	summarise(all = sum(Q))
+
+hflights %>% mutate(diff = TaxiOut - TaxiIn) %>%
+            filter(!is.na(diff)) %>%
+            summarise(avg = mean(diff))	
+
+# Chain together mutate(), filter() and summarise()
+d <- hflights %>%
+  select(Dest, UniqueCarrier, Distance, ActualElapsedTime) %>%
+  mutate(
+    RealTime = ActualElapsedTime + 100,
+    mph = Distance/RealTime*60
+    )
+    
+d %>%
+  filter(
+    !is.na(mph),
+    mph < 70
+    ) %>%
+  summarize(
+    n_less = n(),
+    n_dest = n_distinct(Dest),
+    min_dist = min(Distance),
+    max_dist = max(Distance)
+    )
+
+  hflights %>%
+  filter(
+    !is.na(ArrTime),
+    !is.na(DepTime),
+    ArrTime < DepTime
+    ) %>%
+  summarise(n = n())

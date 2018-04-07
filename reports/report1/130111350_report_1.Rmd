@@ -1,0 +1,31 @@
+---
+title: "Primeiro Relatorio em DS4A"
+author: Gabriel Miranda
+date: April 04, 2018
+output: pdf_document
+---
+
+Imports
+```{r}
+library(jsonlite)
+library(readxl)
+library(readr)
+# library(dplyr)
+```
+
+
+Reading the data
+```{r}
+orient_prof_unb_json <- fromJSON("orientacoes_professores_unb.json")
+dir_gru_pesq_unb_xls <- read_excel("diretorio_grupos_pesquisa_unb.xls")
+tes_diss_unb_json <- fromJSON("teses_dissertacoes_unb.json")
+pub_rep_oasis_txt <- read_tsv("publicacoes_repositorio_oasis.txt")
+```
+
+Showing data structure
+```{r}
+names(orient_prof_unb_json)
+names(dir_gru_pesq_unb_xls)
+names(tes_diss_unb_json)
+names(pub_rep_oasis_txt)
+```

@@ -348,3 +348,8 @@ hflights %>%
   summarise(p_canc = sum(Cancelled)/n() * 100,
             avg_delay = mean(ArrDelay, na.rm=TRUE)) %>%
   arrange(avg_delay, p_canc)
+
+ rank() takes a group of values and calculates the rank of each value within the group  
+
+
+

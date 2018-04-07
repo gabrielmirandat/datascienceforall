@@ -295,8 +295,6 @@ library(dplyr)
 // n() - The number of rows in the data.frame or group of observations that summarise() describes.
 // n_distinct(x) - The number of unique values in vector x
 
-
-# PART 5
 PIPE
 library(magritr)
 %>%
@@ -338,3 +336,15 @@ d %>%
     ArrTime < DepTime
     ) %>%
   summarise(n = n())
+
+# PART 5
+
+"
+group_by(df, Group) // make groups in the dataset
+"
+
+hflights %>%
+  group_by(UniqueCarrier) %>%
+  summarise(p_canc = sum(Cancelled)/n() * 100,
+            avg_delay = mean(ArrDelay, na.rm=TRUE)) %>%
+  arrange(avg_delay, p_canc)

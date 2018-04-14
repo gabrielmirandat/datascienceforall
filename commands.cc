@@ -1,3 +1,5 @@
+# head(sapply(orient_prof_unb_json[["ORIENTACAO_EM_ANDAMENTO_GRADUACAO"]][["2017"]], function (x) unlist(x$"nome_aluno")) %>% sort)
+
 ## importing data in r1
 
 # PART1

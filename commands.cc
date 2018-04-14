@@ -147,7 +147,7 @@ plot(lunch$year, lunch$perc_free_red) // scatter plot
 # PART 2
 
 tidyr
-gather(wide_df, my_key, my_val, -col)
+gather(wide_df, my_key, my_val, -col) // pega todas as colunas sem - e separa, sempre gerando uma coluna chamada Value
 spread(long_df, my_key, my_val)
 separate(treatments, year_mo, c("year", "month"), sep="-")
 unit(treatments, year_mo, year, month, sep="-")
@@ -350,3 +350,184 @@ hflights %>%
   summarise(p_canc = sum(Cancelled)/n() * 100,
             avg_delay = mean(ArrDelay, na.rm=TRUE)) %>%
   arrange(avg_delay, p_canc)
+
+ rank() takes a group of values and calculates the rank of each value within the group  
+
+## Data Visualization with ggplot2 (Part 1)
+
+# PART 1
+
+'Exploratory analysis' is what you do to get familiar with the data. You may start out with a hypothesis or question.
+					   youre not concerned with beautiful at this point
+'Explanatory analysis' is what happens when you have something specific you want to show an audience - probably about those 1 or 2 precious gemstones
+
+library(ggplot)
+ggplot(mammals, aes(x = body, y = brain)) + geom_point()
+
+ggplot(mammals, aes(x = body, y = brain)) + geom_point(alpha = 0.6) + stat_smooth(method = "lm", col = "red", se = FALSE)
+
+ggplot(mammals, aes(x = body, y = brain)) + geom_point(alpha = 0.6) + coord_fixed() + 
+	scale_x_log10() + scale_y_log10() + stat_smooth(method = "lm", col = "#C42126", se = FALSE, size = 1)
+
+ggplot(mtcars, aes(x = factor(cyl), y = mpg)) + geom_point() // because cyl (n of cylinders) is categorical
+
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
+	geom_jitter(alpha = 0.6) +
+	facet_grid(. ~ Species) + 
+	stat_smooth(method = "lm", se = F, col = "red")
+	scale_y_continuos("Sepal Width (cm)",
+						limits = c(2,5),
+						expand = c(0,0)) + 
+	scale_x_continuos("Sepal Length (cm)",
+						limits = c(4,8),
+						expand = c(0,0)) + 
+	coord_equal()
+
+# 1 - The plot you created in the previous exercise
+ggplot(diamonds, aes(x = carat, y = price)) +
+  geom_point() +
+  geom_smooth()
+
+# 2 - Copy the above command but show only the smooth line
+ggplot(diamonds, aes(x = carat, y = price)) +
+  geom_smooth()
+
+# 3 - Copy the above command and assign the correct value to col in aes()
+ggplot(diamonds, aes(x = carat, y = price, color = clarity)) +
+  geom_smooth()
+
+# 4 - Keep the color settings from previous command. Plot only the points with argument alpha.
+ggplot(diamonds, aes(x = carat, y = price, color = clarity)) + 
+  geom_point(alpha = 0.4)
+
+dia_plot + geom_point(aes(color = clarity))
+
+dia_plot + geom_smooth(aes(col = clarity), se = F)  
+
+# PART 2
+
+mtcars$cyl <- as.factor(mtcars$cyl)
+plot(mtcars$wt, mtcars$mpg, col = mtcars$cyl)
+abline(carModel, lty = 2)
+plot(mtcars$wt, mtcars$mpg, col = mtcars$cyl)
+lapply(mtcars$cyl, function(x) {
+  abline(lm(mpg ~ wt, mtcars, subset = (cyl == x)), col = x)
+  })
+legend(x = 5, y = 33, legend = levels(mtcars$cyl),
+       col = 1:3, pch = 1, bty = "n")
+
+# Plot 3: include a lm for the entire dataset in its whole
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point() + # Copy from Plot 1
+  geom_smooth(method = 'lm', se = F) +  # Fill in using instructions Plot 2
+  geom_smooth(aes(group = 1), method = 'lm', se = F, linetype = 2)   # Fill in using instructions Plot
+
+iris.tidy <- iris %>%
+  gather(key, Value, -Species) %>%
+  separate(key, c("Part", "Measure"), "\\.")  
+
+# PART 3
+
+mpg -- Miles/(US) gallon
+cyl -- Number of cylinders
+disp -- Displacement (cu.in.)
+hp -- Gross horsepower
+drat -- Rear axle ratio
+wt -- Weight (lb/1000)
+qsec -- 1/4 mile time
+vs -- V/S engine.
+am -- Transmission (0 = automatic, 1 = manual)
+gear -- Number of forward gears
+carb -- Number of carburetors
+
+Aesthetics
+x, y, colour, fill, size, alpha, linetype, labels, shape
+
+# 1 - Map mpg to x and cyl to y
+ggplot(mtcars, aes(x = mpg, y = cyl)) +
+  geom_point()
+  
+# 2 - Reverse: Map cyl to x and mpg to y
+ggplot(mtcars, aes(y = mpg, x = cyl)) +
+  geom_point()
+
+# 3 - Map wt to x, mpg to y and cyl to col
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point()
+
+# 4 - Change shape and size of the points in the above plot
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point(shape = 1, size = 4)
+
+# am and cyl are factors, wt is numeric
+class(mtcars$am)
+class(mtcars$cyl)
+class(mtcars$wt)
+
+# From the previous exercise
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point(shape = 1, size = 4)
+
+# 1 - Map cyl to fill
+ggplot(mtcars, aes(x = wt, y = mpg, fill = cyl)) +
+  geom_point(shape = 1, size = 4)
+
+
+# 2 - Change shape and alpha of the points in the above plot
+ggplot(mtcars, aes(x = wt, y = mpg, fill = cyl)) +
+  geom_point(shape = 21, alpha= 0.6, size = 4)
+
+
+# 3 - Map am to col in the above plot
+ggplot(mtcars, aes(x = wt, y = mpg, fill = cyl, col = am)) +
+  geom_point(shape = 21, alpha= 0.6, size = 4)
+
+# Map cyl to size
+ggplot(mtcars, aes(x = wt, y = mpg, size = cyl)) +
+  geom_point()
+
+
+# Map cyl to alpha
+ggplot(mtcars, aes(x = wt, y = mpg, alpha = cyl)) +
+  geom_point()
+
+
+# Map cyl to shape 
+ggplot(mtcars, aes(x = wt, y = mpg, shape = cyl)) +
+  geom_point()
+
+
+# Map cyl to label
+ggplot(mtcars, aes(x = wt, y = mpg, label = cyl)) +
+  geom_text()
+
+# Define a hexadecimal color
+my_color <- "#4ABEFF"
+
+# 1 - First scatter plot, with col aesthetic:
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point()
+
+
+# 2 - Plot 1, but set col attributes in geom layer:
+# 1 - First scatter plot, with col aesthetic:
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl)) +
+  geom_point(col = my_color)
+
+
+# 3 - Plot 2, with fill instead of col aesthetic, plut shape and size attributes in geom layer.
+ggplot(mtcars, aes(x = wt, y = mpg, fill = cyl)) +
+  geom_point(col = my_color, size = 10, shape = 23)
+
+
+# Add mapping: (hp/wt) onto size
+ggplot(mtcars, aes(x = mpg, y = qsec, col = factor(cyl), shape = factor(am), size = (hp/wt))) +
+  geom_point()
+
+  
+
+
+# PART 4
+# PART 5
+
+linkedin

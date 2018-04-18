@@ -719,3 +719,104 @@ ggplot(ChickWeight, aes(x = Time, y = weight,color=Diet)) +
 ggplot(titanic, aes(x = Pclass, y=Age, col = Sex)) +
   geom_point(size = 3, alpha = 0.5 ,position = posn.jd)+
   facet_grid(. ~ Survived)
+
+
+## Joining Data in R with dplyr
+
+# PART 1
+
+Mutating joins
+Filtering joins and set operations
+Assembling data
+Advanced joining
+Case study
+
+merge()
+left_join(names, plays, by="name")
+right_join(names, plays, by="name")
+
+bands2 <- left_join(bands, artists, by = c('first','last'))
+bands3 <- right_join(artists, bands, by = c("first", "last"))
+
+inner_join(, y, by="")
+full_join(x,y,by="")
+
+inner_join(songs, albums, by = "album")
+full_join(artists, bands, by = c("first","last"))
+
+bands %>% 
+  left_join(artists, by = c("first", "last")) %>%
+  filter(instrument == "Guitar") %>%
+  select(first, last, band)
+
+goal2 <- artists %>%
+full_join(bands, by = c("first","last")) %>%
+inner_join(songs, by = c("first","last"))
+
+collection <- artists %>%
+  full_join(bands, by = c("first","last")) %>%
+  full_join(songs, by = c("first","last")) %>%
+  full_join(albums, by = c("album", "band"))
+  
+collection
+
+# PART 2
+
+// filtra so os que batem
+semi_join (x,y,by="")
+
+// filtra so os que não batem
+anti_join (x,y,by="")
+
+// union, intersection, setdiff
+union(f,s)
+intersection(f,s)
+setdiff(f,s)
+
+// check same
+setequal(f,s)
+
+# View the output of semi_join()
+artists %>% 
+  semi_join(songs, by = c("first", "last"))
+
+# Create the same result
+artists %>% 
+  right_join(songs, by = c("first", "last")) %>% 
+  filter(!is.na(instrument)) %>% 
+  select(first, last, instrument)
+
+albums %>% 
+  # Collect the albums made by a band
+  semi_join(bands, by="band") %>% 
+  # Count the albums made by a band
+  nrow()
+
+artists %>% 
+  anti_join(bands, by=c("first", "last"))
+
+songs %>% 
+  # Find the rows of songs that match a row in labels
+  semi_join(labels, by="album") %>% 
+  # Number of matches between labels and songs
+  nrow()
+
+# Create the new dataset using a set operation
+live_songs %>% 
+  setdiff(greatest_songs)
+
+# Return the songs that only exist in one dataset
+all_songs <- union(live_songs, greatest_songs)
+both_songs <- intersect(live_songs, greatest_songs)
+one_songs <- setdiff(all_songs, both_songs)
+one_songs
+
+# Return songs in definitive that are not in complete
+definitive %>% 
+  anti_join(complete, by = c("song", "album"))
+
+# Return songs in complete that are not in definitive
+complete %>% 
+  anti_join(definitive, by = c("song", "album"))
+  
+

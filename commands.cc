@@ -1078,7 +1078,378 @@ Appearances %>%
   # Filter for unusual observations
   filter(yearID <= last_year)
 
+## exploratory-data-analysis-in-r-case-study
+
+# PART 1
+
+# Add a country column within the mutate: votes_processed
+votes_processed <- votes %>%
+  filter(vote <= 3) %>%
+  mutate(
+    year = session + 1945,
+    country = countrycode(ccode, "cown", "country.name"),
+    country = recode(country, 
+                     'United States of America' =  'United States',
+                     'United Kingdom of Great Britain and Northern Ireland' = 'United Kingdom')
+    )
+
+votes_processed %>%
+  summarise(
+    total = n(),
+    percent_yes = mean(vote == 1)
+    )
+
+votes_processed %>%
+  group_by(year) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+
+by_country <- votes_processed %>%
+  group_by(country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+by_country
+
+by_country <- votes_processed %>%
+  group_by(country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+
+# Print the by_country dataset
+by_country
+
+# Sort in ascending order of percent_yes
+by_country %>%
+  arrange(percent_yes)
+
+# Now sort in descending order
+by_country %>%
+  arrange(desc(percent_yes))
+
+# Change to scatter plot and add smoothing curve
+ggplot(by_year, aes(year, percent_yes)) +
+  geom_point() +
+  geom_smooth()
+
+# Group by year and country: by_year_country
+by_year_country <- votes_processed %>%
+  group_by(year, country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+
+# Vector of four countries to examine
+countries <- c("United States", "United Kingdom",
+               "France", "India")
+
+# Filter by_year_country: filtered_4_countries
+filtered_4_countries <- by_year_country %>%
+  filter(country %in% countries)
+
+# Line plot of % yes in four countries
+ggplot(filtered_4_countries, aes(x = year, y = percent_yes, color = country)) +
+  geom_line()
+
+# Vector of six countries to examine
+countries <- c("United States", "United Kingdom",
+               "France", "Japan", "Brazil", "India")
+
+# Filtered by_year_country: filtered_6_countries
+filtered_6_countries <- by_year_country %>%
+  filter(country %in% countries)
+
+# Line plot of % yes over time faceted by country
+ggplot(filtered_6_countries, aes(x = year, y = percent_yes)) +
+  geom_line() + 
+  facet_wrap(~ country)
+
+# Load the broom package
+library(broom)
+
+# Call the tidy() function on the US_fit object
+tidy(US_fit)
+
+# Linear regression of percent_yes by year for US
+US_by_year <- by_year_country %>%
+  filter(country == "United States")
+US_fit <- lm(percent_yes ~ year, US_by_year)
+
+# Fit model for the United Kingdom
+UK_by_year <- by_year_country %>%
+  filter(country == "United Kingdom")
+UK_fit <- lm(percent_yes ~ year, UK_by_year)
+
+# Create US_tidied and UK_tidied
+US_tidied <- tidy(US_fit)
+UK_tidied <- tidy(UK_fit)
+
+# Combine the two tidied models
+bind_rows(US_tidied, UK_tidied)
+
+# Load the tidyr package
+library(tidyr)
+
+# Nest all columns besides country
+by_year_country %>%
+  nest(-country)
+
+# All countries are nested besides country
+nested <- by_year_country %>%
+  nest(-country)
+
+nested$data[[1]]
+
+nested$data[[1]]$percent_yes
+
+# Print the nested data for Brazil
+nested$data[nested$country == 'Brazil']
+
+# All countries are nested besides country
+nested <- by_year_country %>%
+  nest(-country)
+
+# Unnest the data column to return it to its original form
+nested %>%
+  unnest()
+
+# Load tidyr and purrr
+library(tidyr)
+library(purrr)
 
 
+# Perform a linear regression on each item in the data column
+by_year_country %>%
+  group_by(country) %>%
+  nest() %>%
+  mutate(
+    model = map(data, ~ lm(percent_yes ~ year, data = .))
+    )
 
+# Filter for only the slope terms
+country_coefficients %>%
+  filter(term == 'year')
+
+# Filter for only the slope terms
+slope_terms <- country_coefficients %>%
+  filter(term == "year")
+
+# Add p.adjusted column, then filter
+slope_terms %>%
+  mutate(p.adjusted = p.adjust(p.value)) %>% 
+  data.frame() %>% head()
+
+# Filter by adjusted p-values
+filtered_countries <- country_coefficients %>%
+  filter(term == "year") %>%
+  mutate(p.adjusted = p.adjust(p.value)) %>%
+  filter(p.adjusted < .05)
+
+# Sort for the countries increasing most quickly
+filtered_countries %>%
+  arrange(desc(estimate))
+
+# Sort for the countries decreasing most quickly
+filtered_countries %>%
+  arrange(estimate)
+
+# Gather the six me/nu/di/hr/co/ec columns
+votes_joined %>%
+  gather(topic, has_topic, one_of("me","nu","di","hr","co","ec"))
+
+# Perform gather again, then filter
+votes_gathered <- votes_joined %>%
+  gather(topic, has_topic, one_of("me","nu","di","hr","co","ec")) %>%
+  filter(has_topic == 1)
+
+# Replace the two-letter codes in topic: votes_tidied
+votes_tidied <- votes_gathered %>%
+  mutate(topic = recode(topic,
+                        me = "Palestinian conflict",
+                        nu = "Nuclear weapons and nuclear material",
+                        di = "Arms control and disarmament",
+                        hr = "Human rights",
+                        co = "Colonialism",
+                        ec = "Economic development"))
+
+# Fit model on the by_country_year_topic dataset
+country_topic_coefficients <- by_country_year_topic %>%
+  nest(-country, -topic) %>%
+  mutate(
+    model = map(data, ~ lm(percent_yes ~ year, data = .)),
+    tidied = map(model, tidy)
+    ) %>%
+  unnest(tidied)
+
+  ## data-visualization-with-ggplot2-2
+
+  - statistics, coordinates, facets, themes
+
+# The previous plot, without CI ribbon:
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F)
+
+
+# The previous plot, without points:
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_smooth(method = "lm", se = F)                                         
+
+## In this ggplot command our smooth is calculated for each subgroup 
+## because there is an invisible aesthetic, group which inherits from col.
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl))) +
+  geom_point() +
+  stat_smooth(method = "lm", se = F)
+
+# Setting the group to 1 in the aes() will override the groups
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl))) +
+  geom_point() +
+  stat_smooth(method = "lm", se = F) + 
+  stat_smooth(aes(group = 1), method = "lm", se = F)
+
+# Plot 1: Jittered scatter plot, add a linear model (lm) smooth:
+ggplot(Vocab, aes(x = education, y = vocabulary)) +
+  geom_jitter(alpha = 0.2) +
+  stat_smooth(method = "lm", se = F)
+  
+# Plot 2: Only lm, colored by year
+ggplot(Vocab, aes(x = education, y = vocabulary, col = factor(year))) +
+  stat_smooth(method = "lm", se = F)
+  
+# Plot 3: Set a color brewer palette
+## This will give a warning and not work becuse the default palette
+## "Blues" only has 9 colors, but we have 16 years
+ggplot(Vocab, 
+       aes(x = education, y = vocabulary, col = factor(year))) +
+  stat_smooth(method = "lm", se = F) + 
+  scale_color_brewer()
+  
+# Plot 4: Add the group, specify alpha and size
+ggplot(Vocab, 
+       aes(x = education, y = vocabulary, col = year, group = factor(year))) +
+  stat_smooth( method = "lm", 
+              se = F, 
+              alpha = 0.6, 
+              size = 2) +
+  scale_color_gradientn(colors = brewer.pal(9,"YlOrRd"))
+  
+# Use stat_quantile instead of stat_smooth
+ggplot(Vocab, aes(x = education, y = vocabulary, col = year, group = factor(year))) +
+  stat_quantile(alpha = 0.6, size=2) +
+  scale_color_gradientn(colors = brewer.pal(9,"YlOrRd"))
+
+# Set quantile to 0.5
+ggplot(Vocab, aes(x = education, y = vocabulary, col = year, group = factor(year))) +
+  stat_quantile(alpha = 0.6, quantiles=0.5, size=2) +
+  scale_color_gradientn(colors = brewer.pal(9,"YlOrRd"))
+
+# The base ggplot command, you dont have to change this
+wt.cyl.am <- ggplot(mtcars, aes(x = cyl,y = wt, col = am, fill = am, group = am))
+
+# Add three stat_summary calls to wt.cyl.am
+wt.cyl.am + 
+  stat_summary(
+    geom = "linerange", 
+    fun.data = med_IQR, 
+    position = posn.d, 
+    size = 3) +
+  stat_summary(
+    geom = "linerange", 
+    fun.data = gg_range, 
+    position = posn.d, 
+    size = 3, 
+    alpha = 0.4) +
+  stat_summary(
+    geom = "point", 
+    fun.y = median, 
+    position = posn.d, 
+    size = 3, 
+    col = "black", 
+    shape = "X")
+
+# Basic ggplot() command, coded for you
+p <- ggplot(mtcars, aes(x = wt, y = hp, col = am)) + geom_point() + geom_smooth()
+
+# Add scale_x_continuous
+## The wrong way to zoom in. You lose data and the stats will dissapear or be incorrect.
+p + scale_x_continuous(limits = c(3,6), expand = c(0,0))
+
+# The proper way to zoom in:
+p + coord_cartesian(xlim = c(3,6))
+
+# Create a stacked bar plot: wide.bar
+wide.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar()
+
+# Convert wide.bar to pie chart
+wide.bar +
+  coord_polar(theta = "y")
+
+# Create stacked bar plot: thin.bar
+thin.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar(width = .1) +
+              scale_x_continuous(limits = c(0.5,1.5))
+
+# Convert thin.bar to "ring" type pie chart
+thin.bar +
+  coord_polar(theta = "y")
+
+# Basic scatter plot:
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point()
+
+# Separate rows according to transmission type, am
+p + facet_grid(am ~ .)
+
+# Separate columns according to cylinders, cyl
+p + facet_grid(. ~ cyl)
+
+# Separate by both columns and rows 
+p + facet_grid(am ~ cyl)
+
+head(mamsleep)
+
+str(mamsleep)
+
+# Basic scatter plot
+ggplot(mamsleep, aes(time, name, col = sleep)) +
+  geom_point()
+  
+# Execute to display plot
+p
+
+# Facet rows accoding to vore
+ggplot(mamsleep, aes(time, name, col = sleep)) +
+  geom_point() + 
+  facet_grid(vore ~ .)
+
+# Specify scale and space arguments to free up rows
+ggplot(mamsleep, aes(time, name, col = sleep)) +
+  geom_point() + 
+  facet_grid(vore ~ ., scale = "free_y", space = "free_y")
+
+# Starting point
+z
+
+# Plot 1: Change the plot background fill to myPink
+z + 
+  theme(plot.background = element_rect(fill = myPink))
+
+# Plot 2: Adjust the border to be a black line of size 3
+z + 
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # expanded from plot 1
+
+# Theme to remove all rectangles
+no_panels <- theme(rect = element_blank())
+
+# Plot 3: Combine custom themes
+z +
+  no_panels +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3))  # from plot 2
+
+# Extend z with theme() function and three arguments
+z <- z + theme(
+  panel.grid = element_blank(),
+  axis.line = element_line(color = "red"),
+  axis.ticks = element_line(color = "red")
+  )
+z
 

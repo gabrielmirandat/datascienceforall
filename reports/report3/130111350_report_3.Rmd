@@ -1,0 +1,196 @@
+---
+title: Disciplina Ciência de Dados Aplicada e Ciência de Dados para Todos - Relatório
+  3 – Publicações do programa de Ciências Mecânicas
+author: "Gabriel Martins de Miranda"
+date: "April 29, 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=TRUE}
+# BIBLIOTECAS
+
+library(jsonlite); library(readxl)
+library(tidyverse) #pacotes dplyr, ggplot2, tidyr, purr, readr, tibble
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=TRUE}
+# IMPORTACOES
+
+# DGP
+# DGP_grupos <- read_xls("Outros/unb.DGP.xls", sheet=1, col_names = TRUE, col_types = NULL, skip=0)
+# DGP_linha_pesquisa <- read_xls("Outros/unb.DGP.xls", sheet=2, col_names = TRUE, col_types = NULL, skip=0)
+# DGP_parcerias <- read_xls("Outros/unb.DGP.xls", sheet=3, col_names = TRUE, col_types = NULL, skip=0)
+# DGP_participantes <- read_xls("Outros/unb.DGP.xls", sheet=4, col_names = TRUE, col_types = NULL, skip=0)
+# DGP_producao <- read_xls("Outros/unb.DGP.xls", sheet=5, col_names = TRUE, col_types = NULL, skip=0)
+
+# OASIS
+# OASIS <- fromJSON("Outros/oasisbr_unb_all.json")
+# OASIS <- OASIS$response
+# OASIS <- OASIS$docs
+
+# BDTD
+# BDTD <- fromJSON("Outros/unb.BDTD.json")
+# BDTD <- BDTD$response
+# BDTD <- BDTD$docs
+
+# PUB
+PUB <- fromJSON("CiMecanicas/CiMecanicas.publication.json")
+PUB_periodico <- data.frame()
+PUB_livro <- data.frame()
+PUB_caplivro <- data.frame()
+PUB_texjornal <- data.frame()
+PUB_evento <- data.frame()
+PUB_artaceito <- data.frame()
+for (i in 1:length(PUB$PERIODICO))
+  PUB_periodico <- rbind(PUB_periodico, PUB$PERIODICO[[i]])
+for (i in 1:length(PUB$LIVRO))
+  PUB_livro <- rbind(PUB_livro, PUB$LIVRO[[i]])
+for (i in 1:length(PUB$CAPITULO_DE_LIVRO))
+  PUB_caplivro <- rbind(PUB_caplivro, PUB$CAPITULO_DE_LIVRO[[i]])
+for (i in 1:length(PUB$TEXTO_EM_JORNAIS))
+  PUB_texjornal <- rbind(PUB_texjornal, PUB$TEXTO_EM_JORNAIS[[i]])
+for (i in 1:length(PUB$EVENTO))
+  PUB_evento <- rbind(PUB_evento, PUB$EVENTO[[i]])
+for (i in 1:length(PUB$ARTIGO_ACEITO))
+  PUB_artaceito <- rbind(PUB_artaceito, PUB$ARTIGO_ACEITO[[i]])
+
+# PERFIL
+PERFIL_TEMP <- fromJSON("CiMecanicas/CiMecanicas.profile.json")
+PERFIL <- data.frame()
+for (i in 1:length(PERFIL_TEMP))
+{
+  temp <- data.frame(nome = PERFIL_TEMP[[i]]$nome, 
+                     resumo_cv = PERFIL_TEMP[[i]]$resumo_cv, 
+                     PERFIL_TEMP[[i]]$areas_de_atuacao, 
+                     senioridade = PERFIL_TEMP[[i]]$senioridade)
+  PERFIL <- rbind(PERFIL, temp)
+}
+```
+
+## 1. Introdução e contextualização
+  O presente trabalho se propôs a fazer a análise de publicações do programa de Ciências Mecânicas (53001010053P0) da UnB. O programa, de acordo com a plataforma sucupira [1], tem por área base a ENGENHARIA MECÂNICA (30500001) e tem por área de avaliação ENGENHARIAS III. O atual coordenador é LUCIVAL MALCHER. O tipo de regime é semestral, com início em 2013. Os cursos incluem Ciências Mecânicas a nível de mestrado, cujo código é 53001010053M0 e a nota no MEC é 4, sendo que teve início em primeiro de janeiro de 2012. Existe também o nível de Doutorado, cujo código é 53001010053D0 e a nota no MEC também é 4, sendo que teve início em primeiro de janeiro de 2005.
+  
+  Para ingressar no curso de mestrado, existe um processo seletivo em que a inscrição é feita de forma pessoal ou por procurador em datas previstas no edital, no local Secretaria da Coordenação de Pós-Graduação na Secretaria do Departamento de Engenharia Mecânica / Faculdade de Tecnologia, Campus Darcy Ribeiro, Universidade de Brasília, CEP 70910-900, Brasília-DF. Pode se inscrever tanto candidatos que morem no Brasil quanto no exterior. Pode ser feita também via cartão postal. Pode se inscrever candidatos em fase de conclusão de curso de Graduação, desde que terminem até o primeiro dia do Período Letivo de ingresso no curso de pós pretendido. Para estudantes com formação no exterior, é necessário que seu diploma seja reconhecido pelo Ministério da Educação do país de origem no ato da matrícula e também  o visto de estudante, fornecido pela Embaixada ou Consulado Brasileiro . A veracidade dos documentos entregues no ato da matrícula é de responsabilidade do candidato. A admissão se dá pelo registro na Secretaria de Administração Acadêmica (SAA). No registro, deve ser apresentado Cópias autenticadas de Diploma do curso superior; Histórico Escolar do curso superior; Carteira de Identidade; CPF; Título de Eleitor com último comprovante de votação;Certificado de Reservista (candidatos do sexo masculino); Carteira de Identidade de Estrangeiro, somente para os estrangeiros. A inscrição para o curso de Doutorado é similar ao de Mestrado, porém deve-se apresentar, além da comprovação que formou/está formando na graduação, a comprovação do mestrado também. A lista de documentos necessário para a inscrição se encontra em [2] para o mestrado e em [3] para o doutorado. Os formulários para ingresso se encontram em [4].
+  
+  O objetivo do Programa de Pós-Graduação em Ciências Mecânicas (PCMEC) do Departamento de Engenharia Mecânica (ENM) da Unb é possibilitar o desenvolvimento de conhecimento inovador por meio de investigação científica e tecnológica nas sub-áreas da Engenharia Mecânica [5], que envolve Mecânica dos Sólidos,Materiais, Mecânica dos Fluidos, Termociências e Dinâmica de Sistemas Mecânicos. 
+Em 2004 a CAPES recomendou o curso/programa de doutorado em Ciências Mecânicas do ENM-UnB, sendo que é o único curso de doutorado em temas de interesse da Engenharia Mecânica na região Centro-Oeste. A estrutura curricular do programa busca fornecer ao aluno pesquisador uma formação bastante sólida e consistente em áreas básicas das Ciências Mecânicas. Um dos principais objetivos do programa é formar profissionais/pesquisadores com uma capacidade de produção de conhecimento autônoma. 
+
+  O curso de Mestrado Acadêmico em Ciências Mecânicas da UnB tem como principal meta aprofundar os conhecimentos adquiridos na Graduação em temas específicos da área, tanto para o doutorado quanto um mercado de trabalho que exige conhecimento específico. O curso visa nos temas de mecânica dos fluidos, mecânica dos sólidos, materiais, sistemas dinâmicos e engenharia térmica.
+  
+   O aluno de mestrado deve cursar um total de vinte e quatro créditos, que dão seis disciplinas, e o de doutorado trinta e dois créditos, oito disciplinas. Sendo as três disciplinas obrigatórias, tanto para o curso de Mestrado como para o de Doutorado, Métodos Matemáticos para Ciências Mecânicas, Métodos Numéricos para Ciências Mecânicas e Métodos Experimentais para Ciências Mecânicas. As demais disciplinas são optativas e escolhidas de acordo com o interesse do aluno. O alunotem um prazo máximo de quatro semestres para terminar o mestrado e oito para o doutorado. As bancas de mestrado incluem três membros com doutorado, sendo um deles o orientador, o outro um membro interno ao programa e o terceiro um membro externo ao programa, que inclui professores com perfil acadêmico relevante de Universidades situadas em outras regiões. As bancas de doutorado são compostas por 5 membros com doutorado, incluindo o orientador, sendo dois externos à Instituição,
+   
+   Entre os 17 docentes permanentes, 11 são bolsistas de produtividade em pesquisa do CNPq. Os 24 trabalhos publicados nos periódicos Qualis A e B possibilitaram alcançar a excelente média de 1,41 artigos por docente permanente, demonstrando um incremento gradativo na produção indexada do grupo de docentes. Em 2011 foram defendidas 07 dissertações de mestrado e 04 teses de doutorado. O número de alunos do programa evoluiu de 54 em 2004 para 189 em 2011. 
+  
+  
+## 2. Referencial
+
+  Analisando o artigo de JP Mena-Chalco, RM Cesar-Jr [9], é possível conhecer um sistema inteligente de extração de conteúdo de valor da plataforma Lattes. Seu artigo foi citado por volta de 155 outras publicações. De acordo com ele, o Lattes é hoje a maior plataforma de informação científica mantida pelo CNPq. Nela, tem-se informação curricular de pesquisadores e instituições brasileiras. Porém, a informação pública contida na plataforma não provê criação automática de resumos e análises de grandes grupos de dados de forma a obter informações de relevância geral. Diante deste problema, o autor cria uma plataforma chamada scriptLattes que cria relatórios baseados nas bases de dados do Lattes.
+
+  Tal ferramenta é de extrema importância no uso da ciência de dados, pois permite criar relatórios das bases de dados do Lattes e assim ajuda a impulsionar a pesquisa no Brasil, seja identificando as áreas de maior crescimento nacional, assim como seus locais de pesquisa, seja para identificar as maiores carências e dificuldades encontradas na pesquisa.
+
+## 3. Metodologia
+  Para realizar a análise do programa de Ciências Mecânicas, utilizou-se o json disponibilizado no moodle da disciplina chamado **CiMecanicas.publication**, que contém as publicações de 2010 a 2017 em periódicos, livros, capítulos de livros, texto em jornais, eventos, artigos aceitos e demais tipos. Para se obter uma análise de qualidade, tentou-se adequar o processo ao modelo CRISP-DM. Foi utilizado também o **CiMecanicas.profile**, para obter dados sobre os docentes do programa.
+  
+  Primeiro foi procurado entender o objetivo do projeto com uma visão dos benefícios para o mundo acadêmico. Ter documentado as realizações acadêmicas de docentes conceituados facilita a busca de conteúdo científico e permite identificar e corrigir falhas no sistema acadêmico de forma bastante ampla.
+  
+  A seguir, os dados foram entendidos e foram identificados conjuntos interessantes. A ferramenta mais utilizada neste processo foi o [11], usado para ver de forma fácil a estrutura dos json utilizados.
+  
+  Então, os dados foram pre-processados para que as análises tivessem um valor correto. Este processamento se baseou principalmente na limpeza de dados para remover duplicatas.
+  
+  Na modelagem dos dados, foi utilizado a linguagem R com R Studio, além dos pacotes tydir, dplyr e ggplot para análise e plotagem dos dados. Para as importaçoes, foi usado jsonlite e readxl.
+  
+  Ao avaliar a análise realizada, é possível concluir que grande valor foi obtido de todo o processo realizado.
+
+## 4. Resultados
+
+  Os professores do programa podem ser listados a seguir com o seguinte comando.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+options(width=85)
+PERFIL %>% select(nome) %>% distinct(nome)
+```
+
+  As principais áreas de atuação dos docentes do programa são mostradas a seguir. É possível ver que Engenharia Mecânica é absoluta, porém existe pesquisa em Matemática e Química também.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+options(width=85)
+df <- PERFIL %>% select(area) %>%
+group_by(area) %>%
+summarise(count = n())
+head(arrange(df, desc(count)))
+```
+
+  Já nas sub-áreas diretas, muitos pesquisadores tem enfoque em Mecânica dos Sólidos e Fenômenos de Transporte, mas várias outras áreas são exploradas.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.align = "center"}
+df <- PERFIL %>% select(sub_area) %>%
+group_by(sub_area) %>%
+summarise(count = n())
+ggplot(df, aes(x = count, y = sub_area)) + 
+  geom_point()
+```
+
+  Para observar o nível de internacionalização das publicações dos professores de ciências mecânicas, o seguinte gráfico de barras foi obtido, de forma que ao analisá-lo percebe-se que a maior parte das publicações são internacionais.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, out.width = "70%", fig.align = "center"}
+ggplot(data = PUB_evento) + 
+geom_bar(mapping = aes(x = ano_do_trabalho, 
+                       fill = classificacao ))
+```
+
+  Com o seguinte gráfico, é possível observar em quais países há mais publicações. Apesar de a maioria das publicações serem de nível internacional, observa-se que a maior parte das conferências ocorrem no Brasil.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, out.width = "70%", fig.align = "center"}  
+ggplot(data = PUB_evento, aes(fill = pais_do_evento, x=1)) + 
+  geom_bar() + 
+  coord_polar(theta = "y")
+```
+
+  A lista dos principais congressos em eventos pode ser obtida com o código a seguir. Podemos observar que o principal evento de publicação é um evento internacional chamado "International Conference on Boundary Element and Meshless Techniques".
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+options(width=85)
+df <- PUB_evento %>% select(nome_do_evento) %>%
+group_by(nome_do_evento) %>%
+summarise(count = n())
+head(arrange(df, desc(count)), 15)
+```
+  
+  Com código similar ao anterior, é possível obter as principais revistas em que há publicação.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+options(width=85)
+df <- PUB_periodico %>% select(titulo, periodico) %>% 
+  distinct(titulo, .keep_all = TRUE) %>% group_by(periodico) %>%
+  summarise(count = n())
+head(arrange(df, desc(count)), 15)
+```
+  
+## Referências
+
+[1] Plataforma sucupira de Ciências Mecânicas, Disponível em: https://sucupira.capes.gov.br/sucupira/public/consultas/coleta/programa/viewPrograma.jsf;jsessionid=lZZ-37m7qwDYy9i9Puq+jQnt.sucupira-215?popup=true&cd_programa=53001010053P0, Acesso em: 29/03/2018.
+
+[2] PMEC, Requisitos para Inscrição no Mestrado, Disponível em : http://www.pcmec.unb.br/index.php?option=com_content&view=article&id=13&Itemid=140, Acesso em: 29/03/2018.
+
+[3] PMEC, Requisitos para Inscrição no Doutorado, Disponível em: http://www.pcmec.unb.br/index.php?option=com_content&view=article&id=14&Itemid=141,  Acesso em: 29/03/2018.
+
+[4] PMEC, Formulários para Ingresso
+, Disponível em: http://www.pcmec.unb.br/index.php?option=com_content&view=article&id=25&Itemid=194, Acesso em: 29/03/2018. 
+
+[5] PMEC, Programa de Pós-Graduação em Ciências Mecânicas, Disponível em: http://www.pcmec.unb.br/index.php?option=com_content&view=article&id=2&Itemid=96, Acesso em: 29/03/2018.
+
+[6] DATA SCIENCE ENTENDER O NEGÓCIO. CRISP-DM #FASE1, Disponível em: https://www.youtube.com/watch?v=AqCIdeQ0aVw&list=PLbmt8d_ueDMVEo273jJYu4ssrvhZkDsX3, Acesso em: 29/03/2018.
+
+[7] DATA SCIENCE ENTENDER OS DADOS. CRISP-DM #FASE2, Disponível em: https://www.youtube.com/watch?v=d1lshkyC3_M&index=2&list=PLbmt8d_ueDMVEo273jJYu4ssrvhZkDsX3, Acesso em: 29/03/2018.
+
+[8] PRÉ-PROCESSAMENTO DE DADOS. CRISP-DM #FASE 3, 
+Disponível em: https://www.youtube.com/watch?v=Aia2nlBPw88&list=PLbmt8d_ueDMVEo273jJYu4ssrvhZkDsX3&index=3, Acesso em: 29/03/2018.
+
+[9] MODELAGEM - CRISP-DM #FASE4, Disponível em: https://www.youtube.com/watch?v=BmpJVm-X2WU&list=PLbmt8d_ueDMVEo273jJYu4ssrvhZkDsX3&index=4, Acesso em: 29/03/2018.
+
+[10] JP Mena-Chalco, RM Cesar-Jr, scriptLattes: An open-source knowledge extraction system from the Lattes platform, Journal of the Brazilian Computer Society, 2009
+
+[11] Json Viewer, Disponível em: http://jsonviewer.stack.hu/, Acesso em: 29/03/2018.
+

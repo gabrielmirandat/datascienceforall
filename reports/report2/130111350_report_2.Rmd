@@ -1,0 +1,155 @@
+---
+title: Disciplina Ciência de Dados Aplicada e Ciência de Dados para Todos - Relatório
+  2 – Importação e Limpeza de Dados
+author: "Gabriel Martins de Miranda"
+date: "April 29, 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=TRUE}
+# helper
+setwd(paste(getwd(),"/report2", sep=""))
+install.packages("purrr")
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=TRUE}
+# bibliotecas
+library(jsonlite); library(readxl)
+library(tidyverse) #pacotes dplyr, ggplot2, tidyr, purr, readr, tibble
+```
+
+## 1. Introdução
+
+  O presente relatório realiza análises quantitativas e qualitativas nos dados disponíveis na base e-lattes da unb, em especial para o curso de Engenharia elétrica, sendo **unb_ePERFIS**, que contém informações dos perfis dos professores do departamento na base lattes, **unb_eORIENT**, que contém dados de orientações de pós-doutorado, doutorado, mestrado e graduação e **unb_ePUB**, que contém as publicações em livros, periódicos, revistas e outros. Além disso foi usada a base do DGB, **unb_DGP_df**, que contém dados de grupos de pesquisa realizados em todo o Brasil. Os dados do e-lattes foram todos coletados desde 2010 a 2017. Já o censo DGP, na folha 4 que foi utilizada, tem dados que vão de 2000 a 2016.
+  
+## 2. Metodologia
+  
+  A plataforma utilizada foi o RStudio e sua linguagem de programação R. Os pacotes envolvidos foram o
+jsonlite para o tratamento dos dados em json e readxl para o excell. Para a análise dos dados foi usado o pacote tidyverse, que inclui os pacotes dplyr, ggplot2, purr. Para o relatório, foi utilizado um
+documento R Markdown, cuja extensão é Rmd e gerado um arquivo em pdf. 
+  
+## 3. Resultados
+### 3.1 Importações
+
+  A importação do DGP foi a mais simples, já que foi possível importar diretamente como dataframe. Foi decidido a importação de apenas a página 4. Com **glimpse** é possível ter uma ideia geral dos dados, já que engloba informações como **names**, **dim** e **str**. A importação e informações dos dados do DGP são mostradas a seguir.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+# unb_DGP
+unb_DGP_df <- read_xls("unb.DGP.xls", sheet = 4)
+glimpse(unb_DGP_df)
+```
+
+  Para a importação dos dados de publicações dos professores, foi decidido que seriam usadas apenas as publicações ocorridas em eventos. Abaixo esta a importação, assim como sua estrutura.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+# unb_ePUB
+unb_ePUB <- fromJSON("unb.Pub.EngEletrica.json")
+unb_ePUB_df <- data.frame()
+for (i in 1:length(unb_ePUB$EVENTO))
+  unb_ePUB_df <- rbind(unb_ePUB_df, unb_ePUB$EVENTO[[i]])
+glimpse(unb_ePUB_df)
+```
+
+  Para os dados de orientações, todas as orientações foram importadas, desde pós-doutorado a graduação. Abaixo está o código da importação.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+# unb_eORIENT
+unb_eORIENT <- fromJSON("unb.Orientacao.EngEletrica.json")
+unb_eORIENT_df <- data.frame()
+for (i in 1:length(unb_eORIENT))
+  for (j in 1:length(unb_eORIENT[[1]]))  
+    unb_eORIENT_df <- rbind(unb_eORIENT_df, unb_eORIENT[[i]][[j]])
+glimpse(unb_eORIENT_df)
+```
+
+  A importação mais complexa foi a dos perfis dos professores, já que muitos dos dados internos são do formato lista pura. Para todos os perfis de professores, foram importados dados de nome, resumo do currículo, áreas de atuação e senioridade.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+# unb_ePERFIS
+unb_ePERFIS <- fromJSON("unb.Perfis.EngEletrica.json")
+unb_ePERFIS_df <- data.frame()
+for (i in 1:length(unb_ePERFIS))
+{
+  temp <- data.frame(nome = unb_ePERFIS[[i]]$nome, 
+                     resumo_cv = unb_ePERFIS[[i]]$resumo_cv, 
+                     unb_ePERFIS[[i]]$areas_de_atuacao, 
+                     senioridade = unb_ePERFIS[[i]]$senioridade)
+  unb_ePERFIS_df <- rbind(unb_ePERFIS_df, temp)
+}
+glimpse(unb_ePERFIS_df)
+```
+
+### 3.2 Análises
+
+  Para o grupo de pesquisa DGB, é possível observar que existem muitas duplicações dos dados dos participantes. O número distinto de participantes é dado pelo comando a seguir. Das 53984 observações do dataset, caímos para 21888.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+  unb_DGP_df %>% select(`Nome Participante`) %>% distinct %>% nrow
+```
+
+  Destes participantes, podemos diferenciar por gênero e pelo nível de formação e plotar a seguir. Podemos ver que grande parte dos participantes é de doutorado, mestrado ou graduação.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, out.width = "70%", fig.align = "center"}
+  df <- unb_DGP_df %>% 
+  select(`Nome Participante`, `Género Participante`, `Nível Formação Participante`) %>% 
+  distinct(`Nome Participante`, .keep_all = TRUE)
+  
+  ggplot(data = df) + 
+  geom_bar(mapping = aes(x = `Género Participante`,
+                         fill = `Nível Formação Participante` ))
+```
+
+  Para as publicações dos professores de engenharia elétrica em eventos, podemos determinar em quais deles os professores da UnB estão mais engajados e publicam mais com o comando a seguir. Como resultado, observamos que o XXIII CBEB foi o mais publicado dentro os professores, em Engenharia Biomédica.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+  df <- group_by(unb_ePUB_df, nome_do_evento) %>%
+  summarise(count = n())
+  head(arrange(df, desc(count)), 10)
+```
+
+  Podemos descobrir também, para cada ano, se houveram mais publicações nacionais ou internacionais.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, out.width = "70%", fig.align = "center"}
+ggplot(data = unb_ePUB_df) + 
+  geom_bar(mapping = aes(x = ano_do_trabalho,
+                         fill = classificacao ))
+```
+
+  Para as orientações dos professores, podemos filtrar os trabalhos relacionados a robótica com o comando a seguir.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+  df <- unb_eORIENT_df %>%
+        select(titulo) %>% 
+        filter(grepl('robô|robo|robotic|robotics', titulo))
+  head(df, 10)
+```
+
+  Podemos descobrir também quantas teses de doutorado receberam suporte de bolsa nestes anos. Podemos observar que depende do ano, sendo que em 2016 o número dos que receberam bolsa foi maior do que os que não receberam.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, out.width = "70%", fig.align = "center"}
+  df <- unb_eORIENT_df %>% 
+  select(titulo, natureza, ano, bolsa) %>%
+  filter(natureza == "Tese de doutorado") %>%
+  distinct(titulo, .keep_all = TRUE)
+  
+  ggplot(data = df) + 
+  geom_bar(mapping = aes(x = ano,
+                         fill = bolsa ))
+```
+
+  Por fim, sobre os perfis dos professores, podemos obter qual a senioridade dos professores do departamento de Engenharia elétrica. Podemos ver que a maior parte tem senioridade 0 seguida de 7.
+  
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}  
+df <- unb_ePERFIS_df %>%
+  select(nome, senioridade) %>%
+  distinct(nome, .keep_all = TRUE) %>%
+  group_by(senioridade) %>%
+  summarise(count = n())
+  head(arrange(df, desc(count)), 10)
+```
+
+## 4. Conclusão
+
+  O presente trabalho teve grande utilidade para a análise de dados de interesse nos datasets e-lattes e DGP para o autor, sendo que contribuiu para o melhor entendimento do funcionamento da área de Ciências de Dados, assim como as plataformas utilizadas e métodos de maior uso. 
